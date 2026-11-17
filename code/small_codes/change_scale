@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import argparse
+
+import numpy as np
+from PIL import Image
+from astropy.visualization import ZScaleInterval
+
+
+def get_limits(img, mode):
+    """
+    Get the lower/upper clipping limits.
+
+    minmax:
+        Uses the actual image minimum and maximum.
+
+    zscale:
+        Uses IRAF-style ZScale through Astropy.
+    """
+
+    if mode == "minmax":
+        vmin = float(np.min(img))
+        vmax = float(np.max(img))
+
+    elif mode == "zscale":
+        interval = ZScaleInterval(
+            contrast=0.25,
+            n_samples=600,
+        )
+
+        vmin, vmax = interval.get_limits(img)
+
+    else:
+        raise ValueError(f"Unknown scale mode: {mode}")
+
+    return vmin, vmax
+
+
+def ds9_power_scale(img, vmin, vmax, a=1000.0):
+    """
+    Approximate DS9's Power display transformation.
+
+    First normalize:
+
+        x = (I - vmin) / (vmax - vmin)
+
+    Then clip x to [0, 1].
+
+    DS9 power transformation:
+
+        y = (a^x - 1) / a
+
+    Default a = 1000.
+    """
+
+    img = img.astype(np.float64)
+
+    if vmax <= vmin:
+        return np.zeros_like(img, dtype=np.uint8)
+
+    # Normalize using display limits
+    x = (img - vmin) / (vmax - vmin)
+
+    # Values below/above the display range saturate
+    x = np.clip(x, 0.0, 1.0)
+
+    # DS9 Power transformation
+    y = (np.power(a, x) - 1.0) / a
+
+    # Convert to 8-bit grayscale
+    output = np.clip(
+        np.round(y * 255.0),
+        0,
+        255,
+    ).astype(np.uint8)
+
+    return output
+
+
+def process_image(input_path, output_path, mode, a):
+    with Image.open(input_path) as im:
+        img = np.asarray(im.convert("L"))
+
+    vmin, vmax = get_limits(img, mode)
+
+    output = ds9_power_scale(
+        img,
+        vmin,
+        vmax,
+        a=a,
+    )
+
+    Image.fromarray(output).save(output_path)
+
+    print(
+        f"{input_path.name}: "
+        f"limits=({vmin:.3f}, {vmax:.3f})"
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Apply DS9-style Power scaling to PNG images."
+    )
+
+    parser.add_argument(
+        "input_dir",
+        type=Path,
+        help="Folder containing input PNGs",
+    )
+
+    parser.add_argument(
+        "output_dir",
+        type=Path,
+        help="Folder for processed PNGs",
+    )
+
+    parser.add_argument(
+        "--scale",
+        choices=["minmax", "zscale"],
+        default="minmax",
+        help="Method used to determine display limits",
+    )
+
+    parser.add_argument(
+        "--power",
+        type=float,
+        default=1000.0,
+        help="DS9 Power parameter a (default: 1000)",
+    )
+
+    args = parser.parse_args()
+
+    args.output_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    images = sorted(args.input_dir.glob("*.png"))
+
+    if not images:
+        raise SystemExit(
+            f"No PNG files found in {args.input_dir}"
+        )
+
+    print(f"Found {len(images)} PNG images")
+    print(f"Scale mode: {args.scale}")
+    print(f"Power parameter: {args.power}")
+    print()
+
+    for i, input_path in enumerate(images, 1):
+
+        output_path = (
+            args.output_dir /
+            input_path.name
+        )
+
+        print(
+            f"[{i}/{len(images)}] ",
+            end="",
+        )
+
+        process_image(
+            input_path,
+            output_path,
+            args.scale,
+            args.power,
+        )
+
+    print()
+    print(
+        f"Processed images written to "
+        f"{args.output_dir}"
+    )
+
+
+if __name__ == "__main__":
+    main()
