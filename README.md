@@ -26,19 +26,19 @@ Spokes are dust clouds over the rings of Saturn. They have been observed several
 <br>
 
 <p align="center">
-  <img src="./results/png/W1597971520.png" width="600" alt="Saturn B-ring">
+  <img src="./results/png/W1597971520.png" width="600" alt="Image of Saturn's B-ring in polar-coordinates.">
   <br>
   <em>Figure 1: Image of Saturn's B-ring in polar-coordinates.</em>
 </p>
 
 <p align="center">
-  <img src="./results/raw/W1597971520_mask.png" width="600" alt="Saturn B-ring">
+  <img src="./results/raw/W1597971520_mask.png" width="600" alt="Hand labelled mask of Figure 1.">
   <br>
   <em>Figure 2: Hand labelled mask of Figure 1.</em>
 </p>
 
 <p align="center">
-  <img src="./results/tracks/W1597971520_mask_tracks_with_axes.png" width="600" alt="Saturn B-ring">
+  <img src="./results/tracks_demo.png" width="600" alt="Tracked spokes in Figure 2 with axes.">
   <br>
   <em>Figure 3: Tracked spokes in Figure 2 with axes.</em>
 </p>
