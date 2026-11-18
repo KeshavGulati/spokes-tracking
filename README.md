@@ -19,8 +19,10 @@ The code is modular and breaks the problem down into subcomponents. All of the c
 
 Given a *frame*, we predict the position of all spokes in that frame for the next frame. For this, we assume that spokes follow a simple Keplerian motion model. This model can be described as follows:
 $$
-  \theta_{k+1} = \theta_k + \omega_r \Delta t \\
-  \text{where } \omega = \sqrt{{GM} \over r^3}
+\begin{aligned}
+  \theta_{k+1} &= \theta_k + \omega_r \Delta t \\
+  \text{where } \omega &= \sqrt{{GM} \over r^3}
+\end{aligned}
 $$
 So, for every longitude and radius coordinate of a spoke, we calculate the new longitude value based on the angular velocity for that radius value, and the given time difference. <br>
 For every such prediction, we propagate the track id from the previous mask, and then we "superimpose" this prediction on the new observation. 
@@ -29,8 +31,10 @@ For every such prediction, we propagate the track id from the previous mask, and
 
 The way this works is that we have a cost metric, and for every spoke pair between the predicted frame and the observed frame, we calculate this cost as such:
 $$
-  c = {d(s_1, s_2) \over {ds}} - (10 i(s_1, s_2))^2 \\
-  \text{where } ds = 20,000
+\begin{aligned}
+  c &= {d(s_1, s_2) \over {ds}} - (10 i(s_1, s_2))^2 \\
+  \text{where } ds &= 20,000
+\end{aligned}
 $$
 $d(s_1, s_2)$ gets the distance between spokes $s_1$ and $s_2$ by calculating a simple distance between the centroids of those spokes, and $i(s_1, s_2)$ calculates the Intersection Over Union (IoU) score for both spokes. $ds$ stands for distance scale, and is a way to make distance a unit-less quantity so that it can be used for the cost function. We arbitrarily choose $ds$ to be 20,000.
 
