@@ -15,6 +15,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any
 
+import cv2
 import numpy as np
 
 from utils import load
@@ -89,6 +90,43 @@ def render_frame_from_spokes(
     )
 
 
+def temp_render(
+    spokes: list[Spoke],
+    lon_arr: np.ndarray,
+    rad_arr: np.ndarray,
+) -> np.ndarray:
+    image = np.zeros((len(rad_arr), len(lon_arr), 3), dtype=np.uint8)
+
+    for spoke in spokes:
+        track_id = spoke.get_track_id()
+
+        if track_id is None:
+            raise ValueError("Cannot render a spoke without a track ID")
+
+        visible_lons, cols = _nearest_grid_indices(spoke.get_lon_arr(), lon_arr)
+        visible_rads, rows = _nearest_grid_indices(spoke.get_rad_arr(), rad_arr)
+        visible = visible_lons & visible_rads
+        image[rows[visible], cols[visible]] = get_track_color(track_id)
+
+    return image
+
+
+def temp_save(
+    image: np.ndarray,
+    name: str,
+    output_dir: Path,
+    suffix: str,
+) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"{Path(name).stem}_{suffix}.png"
+    bgr_image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+    if not cv2.imwrite(str(output_path), bgr_image):
+        raise OSError(f"Could not save image to {output_path}")
+
+    return output_path
+
+
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("masks_path")
@@ -99,14 +137,20 @@ if __name__ == "__main__":
 
     predictions_path: Path | None = None
     tracks_path: Path | None = None
+    tracks_temp: Path | None = None
     output_path: Path = Path("./tracks.json")
 
     if args.visualize:
         predictions_path = Path("./predictions")
         tracks_path = Path("./tracks")
 
+        tracks_temp = Path("./temp_tracks")
+
         predictions_path.mkdir(exist_ok=True)
         tracks_path.mkdir(exist_ok=True)
+
+        # only for testing
+        tracks_temp.mkdir(exist_ok=True)
 
     tracker: Tracker | None = None
     frame_map: dict[str, Any] = {}
@@ -130,7 +174,12 @@ if __name__ == "__main__":
         if predicted_spokes is None or observed_spokes is None:
             raise Exception("spokes cannot be None here!")
 
-        if args.visualize and predictions_path is not None and tracks_path is not None:
+        if (
+            args.visualize
+            and predictions_path is not None
+            and tracks_path is not None
+            and tracks_temp is not None
+        ):
             # save predictions
             render_frame_from_spokes(
                 predicted_spokes,
@@ -139,6 +188,13 @@ if __name__ == "__main__":
                 rad_arr,
                 predictions_path,
                 "predictions",
+            )
+
+            temp_save(
+                temp_render(observed_spokes, lon_arr, rad_arr),
+                name,
+                tracks_temp,
+                "temp_track",
             )
 
             # save observations with tracks
