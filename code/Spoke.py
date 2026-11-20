@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import count
 from typing import ClassVar, Any
+from math import sqrt
 
 
 class Spoke:
@@ -61,9 +62,10 @@ class Spoke:
         """
         This function takes in a spoke and returns the distance between the self spoke
         and the argument spoke.
+        It gets the centroid of each spoke, converts it into Cartesian coordiantes, and then calculates the L2 norm between the two points.
         """
 
-        # NOTE: We have to convert the coordinates from polar to Cartesian, because other the radius
+        # NOTE: We have to convert the coordinates from polar to Cartesian, because otherwise the radius
         # value dominates over the longitude value. By converting to Cartesian coordinates, both dominate equally.
 
         # Get the centroid for both spokes
@@ -81,7 +83,9 @@ class Spoke:
             spoke_rad * np.sin(spoke_radians),
         )
 
-        return np.float32(np.hypot(self_x - spoke_x, self_y - spoke_y))
+        a, b = abs(spoke_x - self_x), abs(spoke_y - self_y)
+
+        return np.float32(sqrt(a**2 + b**2))
 
     def get_iou(self, spoke: "Spoke") -> float:
         """
