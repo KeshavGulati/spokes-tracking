@@ -33,9 +33,9 @@ Spokes are dust clouds over the rings of Saturn. They have been observed several
 </p>
 
 <p align="center">
-  <img src="./results/raw/W1597971520_mask.png" width="600" alt="Hand labelled mask of Figure 1.">
+  <img src="./results/raw/W1597971520_mask.png" width="600" alt="Hand labeled mask of Figure 1.">
   <br>
-  <em>Figure 2: Hand labelled mask of Figure 1.</em>
+  <em>Figure 2: Hand labeled mask of Figure 1.</em>
 </p>
 
 <p align="center">
@@ -66,7 +66,7 @@ Once we have reprojected these images, we obtain binary masks from them, where a
 <p align="center">
   <img src="./results/reproj_vs_masks/W1597971520.png" width="600" alt="Saturn B-ring">
   <br>
-  <em>Figure 5: Reprojected images vs hand-labelled segmentation masks.</em>
+  <em>Figure 5: Reprojected images vs hand-labeled segmentation masks.</em>
 </p>
 
 The input to the tracking algorithm is the masks, and it does not deal with the original image or with the reprojected image. 
@@ -119,7 +119,7 @@ I tested this code incrementally on a single folder containing reprojected image
 <p align="center">
   <img src="./results/mask_vs_track.png" width="600" alt="Saturn B-ring">
   <br>
-  <em>Figure 6: Hand-labelled segmentation masks vs tracks.</em>
+  <em>Figure 6: Hand-labeled segmentation masks vs tracks.</em>
 </p>
 
 The code seems to do really well with this one folder, and tracks every spoke perfectly across different masks.
