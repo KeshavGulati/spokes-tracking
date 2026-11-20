@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Step inside Saturn's spoke tracker: predictions, pair comparisons, greedy matches, and track propagation using real tracker data." />
+    <title>Spoke Tracker — Algorithm Explorer</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#explorer">Skip to algorithm explorer</a>
+    <header class="app-header">
+      <a class="brand" href="./" aria-label="Spoke Tracker algorithm explorer">
+        <span class="brand-symbol" aria-hidden="true">◎</span>
+        <span>SPOKE TRACKER</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-subtitle">Algorithm explorer</span>
+      </a>
+      <a class="source-link" href="../code/Tracker.py" target="_blank" rel="noopener">Source code ↗</a>
+    </header>
+
+    <main id="explorer" class="app-shell">
+      <section class="intro-row">
+        <div>
+          <p class="overline">REAL CASSINI DATA · PRECOMPUTED WITH THE ACTUAL TRACKER</p>
+          <h1>Watch one mask become the next.</h1>
+          <p>Go inside a single transition. Move a spoke, compare the possibilities, then let greedy matching pass its identity forward.</p>
+        </div>
+        <label class="transition-picker">Observation pair
+          <select id="transition-select" aria-label="Choose an observation pair">
+            <option>Loading transitions…</option>
+          </select>
+        </label>
+      </section>
+
+      <nav class="stage-nav" aria-label="Tracking stages">
+        <button type="button" class="stage-button is-active" data-stage="0" aria-current="step"><span>1</span>Current mask</button>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <button type="button" class="stage-button" data-stage="1"><span>2</span>Predict</button>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <button type="button" class="stage-button" data-stage="2"><span>3</span>New mask</button>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <button type="button" class="stage-button" data-stage="3"><span>4</span>Compare</button>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <button type="button" class="stage-button" data-stage="4"><span>5</span>Greedy match</button>
+        <span class="stage-arrow" aria-hidden="true">→</span>
+        <button type="button" class="stage-button" data-stage="5"><span>6</span>Tracks</button>
+      </nav>
+
+      <div id="loading" class="loading-message" role="status">Loading the tracker data…</div>
+
+      <section id="demo-content" class="demo-content" hidden>
+        <div class="stage-heading">
+          <div>
+            <span id="stage-kicker" class="stage-kicker">STEP 1 OF 6</span>
+            <h2 id="stage-title">Start with separate white regions.</h2>
+          </div>
+          <p id="stage-description"></p>
+        </div>
+
+        <div class="workbench">
+          <div class="visual-column">
+            <div id="canvas-panels" class="canvas-panels single-panel">
+              <figure class="mask-panel">
+                <figcaption><span id="left-label">CURRENT MASK</span><small id="left-meta"></small></figcaption>
+                <canvas id="left-canvas" aria-label="Current mask visualization"></canvas>
+              </figure>
+              <figure id="right-panel" class="mask-panel" hidden>
+                <figcaption><span id="right-label">PREDICTION</span><small id="right-meta"></small></figcaption>
+                <canvas id="right-canvas" aria-label="Prediction visualization"></canvas>
+              </figure>
+            </div>
+            <div class="visual-footer">
+              <div class="legend"><span><i class="white-key"></i>Observed</span><span><i class="color-key"></i>Track color</span><span><i class="ghost-key"></i>Previous position</span></div>
+              <span id="visual-note">Click a region to inspect it.</span>
+            </div>
+            <div id="transition-summary" class="transition-summary"></div>
+          </div>
+
+          <aside class="inspector" aria-label="Comparison inspector">
+            <div class="inspector-header">
+              <div><span class="overline">INSPECTOR</span><h3 id="inspector-title">Objects in this mask</h3></div>
+              <span id="decision-badge" class="decision-badge" hidden></span>
+            </div>
+            <p id="inspector-description" class="inspector-description"></p>
+
+            <div id="object-summary" class="object-summary"></div>
+
+            <div id="pair-card" class="pair-card" hidden>
+              <div class="pair-heading"><span id="pair-rank"></span><span id="pair-cost"></span></div>
+              <div id="pair-names" class="pair-names"></div>
+              <div class="pair-metrics">
+                <div><span id="pair-distance"></span><small>separation / frame scale</small></div>
+                <div><span id="pair-shape"></span><small>aligned shape score</small></div>
+              </div>
+              <p class="cost-explanation">Lower cost is preferred: <code>separation − (10 × shape)²</code></p>
+              <p id="decision-reason" class="decision-reason"></p>
+            </div>
+
+            <div id="candidate-tools" class="candidate-tools" hidden>
+              <div class="filters">
+                <label>Prediction<select id="prediction-filter" aria-label="Filter comparisons by prediction"></select></label>
+                <label>Observation<select id="observation-filter" aria-label="Filter comparisons by observation"></select></label>
+              </div>
+              <div id="candidate-count" class="candidate-count"></div>
+              <div id="candidate-list" class="candidate-list" aria-label="Candidate pairs sorted by cost"></div>
+            </div>
+
+            <div id="greedy-controls" class="greedy-controls" hidden>
+              <div class="matching-progress"><span id="matching-progress-label"></span><progress id="matching-progress" value="0" max="1"></progress></div>
+              <div class="matching-buttons">
+                <button id="compare-next" class="primary-button" type="button">Consider next pair →</button>
+                <button id="auto-compare" class="secondary-button" type="button" aria-pressed="false">Auto step</button>
+              </div>
+              <button id="finish-matching" class="text-button" type="button">Run all remaining comparisons</button>
+              <div id="match-tally" class="match-tally"></div>
+            </div>
+
+            <div id="final-summary" class="final-summary" hidden></div>
+          </aside>
+        </div>
+
+        <footer class="step-footer">
+          <button id="previous-step" class="secondary-button" type="button">← Previous step</button>
+          <span id="step-hint">Use the steps above to revisit any part of the transition.</span>
+          <button id="next-step" class="primary-button" type="button">Predict the next position →</button>
+        </footer>
+      </section>
+
+      <details class="method-note">
+        <summary>A note on what is visualized <span aria-hidden="true">+</span></summary>
+        <p>The mask pixels and colors come from generated snapshots of the real <code>Tracker</code>, <code>Frame</code>, and <code>Spoke</code> objects. Pair costs and accepted matches also come directly from the production matching function. Predicted points are snapped to the image grid only for drawing; the tracker compares their continuous physical coordinates before this visualization step.</p>
+      </details>
+      <noscript><p class="error-message">JavaScript is required for this interactive walkthrough.</p></noscript>
+    </main>
+  </body>
+</html>
