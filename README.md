@@ -18,7 +18,8 @@ This is a code that tracks spokes that have been segmented in a binary segmentat
 - [References](#references)
 
 ## Introduction
-Spokes are dust clouds over the rings of Saturn. They have been observed several times, and are a very interesting phenomena. For this project, we are concerned with mainly the B-ring of Saturn, and here we observe several kinds of spokes- dark against a light background, light against a dark background, mixed, and more[^1]. For our project, we are concerned with analyzing these spokes to determine certain valuable patterns and interesting statistics. In order to accomplish this, I envision our pipeline looking as follows:
+
+Spokes are dust clouds over the rings of Saturn. They have been observed several times and are a very interesting phenomenon. For this project, we focus mainly on Saturn's B-ring, where we observe several kinds of spokes: dark against a light background, light against a dark background, mixed, and more[1]. For our project, we aim to analyze these spokes to identify valuable patterns and interesting statistics. In order to accomplish this, I envision our pipeline looking as follows:
 <br>
 ```text
   Raw Images --> Segmentation Model --> Tracking Algorithm --> Statistics
@@ -43,16 +44,16 @@ Spokes are dust clouds over the rings of Saturn. They have been observed several
   <em>Figure 3: Tracked spokes in Figure 2 with axes.</em>
 </p>
 
+This project addresses the tracking part of this pipeline: given a sequence of binary segmented spoke masks from images taken contiguously in time, can we track these spokes across images?
 
-This project deals with the tracking algorithm part of this pipeline- given a binary segmented mask of spokes, can we track these spokes across images?
-
-The code is modular and breaks the problem down into subcomponents. All of the code can be found in [./code](./code).
+The code is modular and breaks the problem down into subcomponents. It can be found in [code/](./code/).
 
 ## The Data
 
-We are working with images of the B-ring of Saturn that have been taken by the Cassini spacecraft. These images can be obtained using the [**OPUS (Outer Planets Unified Search)**](https://opus.pds-rings.seti.org/opus/?utm_source=chatgpt.com#/cols=opusid,instrument,planet,target,time1,observationduration&widgets=instrument,observationtype,target&order=time1,opusid&view=search&browse=gallery&cart_browse=gallery&startobs=1&cart_startobs=1&detail=) tool maintained by NASA's Planetary Data System Ring-Moon Systems Node.
+We are working with images of Saturn's B-ring taken by the Cassini spacecraft. These images can be obtained using the  [**OPUS (Outer Planets Unified Search)**](https://opus.pds-rings.seti.org/opus/?utm_source=chatgpt.com#/cols=opusid,instrument,planet,target,time1,observationduration&widgets=instrument,observationtype,target&order=time1,opusid&view=search&browse=gallery&cart_browse=gallery&startobs=1&cart_startobs=1&detail=) tool maintained by NASA’s Planetary Data System Ring-Moon Systems Node.
 
-These images are taken by the spacecraft at an angle, and it is not the best way to see spokes in these. So, in order to be able to work with these images better, we re-project them into polar-coordinates.
+These images are taken by the spacecraft at an angle, which is not the best way to see the spokes. To work with these images more effectively, we reproject them into polar coordinates.
+
 <br><br>
 <p align="center">
   <img src="./results/original_vs_reproj.png" width="600" alt="Saturn B-ring">
@@ -60,15 +61,15 @@ These images are taken by the spacecraft at an angle, and it is not the best way
   <em>Figure 4: Saturn's B-ring observed by Cassini vs the same image in polar coordinates.</em>
 </p>
 
-Once we have re-projected these images, we obtain binary masks from them, where all spokes are labelled 1 and all non-spokes are labelled 0. To test tracking, I hand labelled a few images that were taken contiguously in time, but in practice, we would be training binary segmentation model to detect spokes, and then feed individual images into our tracking algorithm.
+Once we have reprojected these images, we obtain binary masks from them, where all spokes are labeled 1 and all non-spokes are labeled 0. To test tracking, I hand-labeled a few images taken contiguously in time, but in practice, we would train a binary segmentation model to detect spokes and then feed individual images into our tracking algorithm.
 <br><br>
 <p align="center">
   <img src="./results/reproj_vs_masks/W1597971520.png" width="600" alt="Saturn B-ring">
   <br>
-  <em>Figure 5: Re-projected images vs hand-labelled segmentation masks.</em>
+  <em>Figure 5: Reprojected images vs hand-labelled segmentation masks.</em>
 </p>
 
-The input to the tracking algorithm is the masks, and it does not deal with the original image or with the re-projected image. 
+The input to the tracking algorithm is the masks, and it does not deal with the original image or with the reprojected image. 
 
 ## How It Works
 
@@ -113,7 +114,7 @@ This is a non-trivial case, mainly because the reason that a spoke disappears fr
 
 ## Results
 
-I tested this code incrementally on a single folder containing re-projected images taken contiguously in time.
+I tested this code incrementally on a single folder containing reprojected images taken contiguously in time.
 <br><br>
 <p align="center">
   <img src="./results/mask_vs_track.png" width="600" alt="Saturn B-ring">
