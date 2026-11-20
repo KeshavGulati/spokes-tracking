@@ -1,0 +1,48 @@
+You are generating synthetic binary segmentation masks of spokes in Saturn’s rings. The attached reference images are real hand-labelled masks. Reproduce their visual structure and annotation style, not a simplified or idealized version of it.
+
+Study the references carefully before generating. Create a NEW arrangement that looks as though it could be another frame from the same hand-labelled dataset.
+
+OUTPUT
+- One wide image, exactly 1488 × 380 pixels.
+- Solid pure-white regions (#FFFFFF) on a pure-black background (#000000).
+- No gray, gradients, antialiasing, texture, noise, text, labels, border, outlines, or shadows.
+- All visible regions must be filled; no deliberate holes.
+- Do not let any white pixels touch the image boundary.
+
+SCALE AND DENSITY
+- White should occupy only about 1–5% of the image. Keep the image predominantly black.
+- Use 5–12 disconnected white regions, including separate small fragments and branches.
+- Most regions should be small or medium-sized: typically 15–70 px wide and 10–55 px tall.
+- Include at most one or two larger regions, approximately 70–120 px wide and 40–80 px tall.
+- Avoid oversized objects. No region should dominate a large portion of the frame.
+
+SHAPE AND ANNOTATION STYLE
+- Shapes must be visibly irregular, asymmetric, and organic, as if manually traced around turbulent dust clouds.
+- Use varied morphology: uneven rounded masses, tapered wedges, short curved smudges, narrow slivers, finger-like projections, and irregular branching forms.
+- Give contours small-scale irregularities and uneven curvature. Edges should look natural and hand-traced rather than mathematically smooth.
+- Many elongated regions should curve, bend, taper unevenly, or widen abruptly at one end.
+- Some shapes may have a roughly straight lower boundary, but do not give them the flat base and symmetrical profile of a trapezoid.
+- Avoid perfect ellipses, circles, leaves, teardrops, triangles, trapezoids, diamonds, and other clean geometric silhouettes.
+- Vary orientation. Elongated forms are often diagonal or nearly vertical; do not align every shape at the same angle.
+
+BRANCHED STRUCTURES
+- Include branched or fork-like structures only occasionally; omit them from many images.
+- Do NOT use a repeated “three evenly spaced prongs above a circle” motif.
+- When branching occurs, make it asymmetric and irregular: two, three, or four uneven tapered projections emerging from, touching, or sitting close to an irregular base.
+- Branches may vary greatly in length, curvature, spacing, thickness, and direction. Branches that touch the base belong to the same connected region.
+- Nearby detached slivers can occur, but should not form a neat comb, hand, crown, or trident icon.
+
+SPATIAL ARRANGEMENT
+- Confine the spokes primarily to a horizontal band spanning roughly 12–60% of the image height; a few lower fragments may extend to about 70%.
+- Keep the top 10%, bottom 30%, and narrow strips along all image edges entirely black.
+- Arrange regions into one to four irregular clusters, with substantial empty black gaps between some clusters.
+- Vary the occupied horizontal extent: in some images concentrate most spokes within one half of the frame; in others distribute clusters more widely.
+- Do NOT place regions at regular intervals or as a tidy row of similarly sized objects.
+- Include close pairs, partially overlapping-looking but disconnected fragments, isolated small pieces, and large gaps.
+- Do not center the entire arrangement automatically.
+
+GENERALIZATION
+- Match the references’ distribution of size, density, roughness, clustering, and connected structure.
+- Vary the composition substantially between generated masks.
+- Do not copy a reference layout, repeat a signature shape in every image, or beautify the masks.
+- The result should resemble an imperfect scientific hand-labelled segmentation mask, not an illustration, icon set, logo collection, or row of decorative silhouettes.
