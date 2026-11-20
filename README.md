@@ -94,7 +94,7 @@ The way this works is that we have a cost metric, and for every spoke pair betwe
   \text{where } ds &= 20,000
 \end{aligned}
 ```
-$d(s_1, s_2)$ gets the distance between spokes $s_1$ and $s_2$ by calculating a simple distance between the centroids of those spokes, and $i(s_1, s_2)$ calculates the Intersection Over Union (IoU) score for both spokes. $l(f)$ is a function that takes in a frame and returns the scale of the longitude values for that frame. So, a value of 1 for $d(s_1, s_2) \over {l(f)}$ means that the spoke centroids are as far as possible, and a value of 0 means that they overlap exactly. So, by normalizing our distance quantity, the cost function gets bounded to be between 0 and 2.
+$d(s_1, s_2)$ gets the distance between spokes $s_1$ and $s_2$ by calculating a simple distance between the centroids of those spokes, and $i(s_1, s_2)$ calculates the Intersection Over Union (IoU) score for both spokes. $l(f)$ is a function that takes in a frame and returns the distance between the top-left and the bottom-right points in that frame. So, a value of 1 for $d(s_1, s_2) \over {l(f)}$ means that the spoke centroids are as far as possible, and a value of 0 means that they overlap exactly. So, by normalizing our distance quantity, the cost function gets bounded to be between 0 and 2.
 
 ### Matching Function
 

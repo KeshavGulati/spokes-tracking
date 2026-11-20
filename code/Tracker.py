@@ -49,7 +49,10 @@ class Tracker:
 
     @staticmethod
     def _match_spokes(
-        first_spokes: list[Spoke], second_spokes: list[Spoke], lon_arr: np.ndarray
+        first_spokes: list[Spoke],
+        second_spokes: list[Spoke],
+        lon_arr: np.ndarray,
+        rad_arr: np.ndarray,
     ) -> list[tuple[Spoke, Spoke]]:
         """Greedily find one-to-one matches using distance and shape similarity."""
         candidates = []
@@ -58,9 +61,13 @@ class Tracker:
                 distance = first_spoke.get_distance(second_spoke)
                 iou = first_spoke.get_iou(second_spoke)
 
-                distance_scale = lon_arr.shape[
-                    0
-                ]  # divide by the scale to make the highest possible distance = 1
+                tll, tlr = lon_arr[0], rad_arr[0]
+                brl, brr = lon_arr[-1], rad_arr[-1]
+
+                tlx, tly = tlr * np.sin(tll), tlr * np.cos(tll)
+                brx, bry = brr * np.sin(brl), brr * np.cos(brl)
+
+                distance_scale = np.float32(np.hypot(brx - tlx, bry - tly))
 
                 # the lower the cost, the higher the similarity
                 # Since IoU can change over time even for the same spoke (spoke evolution
@@ -116,7 +123,10 @@ class Tracker:
 
         matched_observed = set()
         for predicted_spoke, observed_spoke in self._match_spokes(
-            predicted_spokes, observed_spokes, observed_frame.get_lon_arr()
+            predicted_spokes,
+            observed_spokes,
+            observed_frame.get_lon_arr(),
+            observed_frame.get_rad_arr(),
         ):
             if predicted_spoke.track_id is None:
                 continue
