@@ -1,5 +1,7 @@
 boto3==1.44.0
+google-genai
 ipython==9.17.1
 matplotlib==3.11.2
 numpy==2.5.3
+opencv-python-headless
 Pillow==12.3.0
