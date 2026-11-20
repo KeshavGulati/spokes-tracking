@@ -73,7 +73,7 @@ class Tracker:
                 # Since IoU can change over time even for the same spoke (spoke evolution
                 # or new spoke enters), I want the distance to dominate the cost.
                 # Greater the distance, the more the cost, and greater the IoU the less the cost.
-                cost = float(distance / distance_scale) - (10 * iou) ** 2
+                cost = float(distance / distance_scale) - (iou)
                 candidates.append((cost, first_index, second_index))
 
         matches = []
