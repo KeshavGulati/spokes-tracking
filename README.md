@@ -19,7 +19,7 @@ This is a code that tracks spokes that have been segmented in a binary segmentat
 
 ## Introduction
 
-Spokes are dust clouds over the rings of Saturn. They have been observed several times and are a very interesting phenomenon. For this project, we focus mainly on Saturn's B-ring, where we observe several kinds of spokes: dark against a light background, light against a dark background, mixed, and more[1]. For our project, we aim to analyze these spokes to identify valuable patterns and interesting statistics. In order to accomplish this, I envision our pipeline looking as follows:
+Spokes are dust clouds over the rings of Saturn. They have been observed several times and are a very interesting phenomenon. For this project, we focus mainly on Saturn's B-ring, where we observe several kinds of spokes: dark against a light background, light against a dark background, mixed, and more[^1]. For our project, we aim to analyze these spokes to identify valuable patterns and interesting statistics. In order to accomplish this, I envision our pipeline looking as follows:
 <br>
 ```text
   Raw Images --> Segmentation Model --> Tracking Algorithm --> Statistics
