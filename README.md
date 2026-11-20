@@ -4,6 +4,10 @@
 
 This is a code that tracks spokes that have been segmented in a binary segmentation mask.
 
+## Interactive Demo
+
+Explore an interactive walkthrough of the actual tracker: inspect masks and orbital predictions, compare candidate pairs, step through greedy matching, and watch track IDs propagate. Open the [interactive demo](demo/index.html), or see the [launch instructions](demo/README.md).
+
 ## Table of Contents
 
 - [Introduction](#introduction)

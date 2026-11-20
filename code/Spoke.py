@@ -87,24 +87,83 @@ class Spoke:
 
         return np.float32(sqrt(a**2 + b**2))
 
+    @staticmethod
+    def _coordinate_step(
+        values: np.ndarray, groups: np.ndarray | None = None
+    ) -> float | None:
+        """Estimate raster spacing, optionally within individual radial rows."""
+        if groups is None:
+            groups = np.zeros(values.shape)
+
+        spacings = []
+        for group in np.unique(groups):
+            unique_values = np.unique(values[groups == group])
+            if unique_values.size < 2:
+                continue
+            differences = np.diff(unique_values)
+            tolerance = max(1e-8, float(np.max(np.abs(unique_values))) * 1e-10)
+            spacings.extend(differences[differences > tolerance].tolist())
+
+        return min(spacings) if spacings else None
+
+    @staticmethod
+    def _shared_coordinate_step(
+        first: np.ndarray,
+        second: np.ndarray,
+        first_groups: np.ndarray | None = None,
+        second_groups: np.ndarray | None = None,
+    ) -> float:
+        steps = (
+            Spoke._coordinate_step(first, first_groups),
+            Spoke._coordinate_step(second, second_groups),
+        )
+        return max((step for step in steps if step is not None), default=1.0)
+
+    @staticmethod
+    def _centered_pixels(
+        values: np.ndarray, centroid: float, step: float
+    ) -> np.ndarray:
+        """Convert centered coordinates to integer raster-cell indices."""
+        return np.rint((values - centroid) / step).astype(np.int64)
+
     def get_iou(self, spoke: "Spoke") -> float:
+        """Return centroid-aligned raster IoU between two spokes.
+
+        Both coordinate sets are centered before being binned onto a shared
+        grid. Nearby points therefore occupy the same pixel even when their
+        floating-point coordinates are not exactly equal.
         """
-        This function takes in a spoke and returns the IoU score between the self spoke
-        and the argument spoke.
-        """
 
-        (curr_lon, curr_rad) = self.get_centroid()
-        (spoke_lon, spoke_rad) = spoke.get_centroid()
+        # NOTE: Think about replacing this function and instead comparing IoU scores by letting opencv
+        # make a spoke into an image, and then comparing the images instead of lon and rad values.
 
-        curr_lon_arr = self.get_lon_arr() - curr_lon
-        curr_rad_arr = self.get_rad_arr() - curr_rad
+        if self.get_lon_arr().size == 0 or spoke.get_lon_arr().size == 0:
+            return 0.0
 
-        s_lon_arr = spoke.get_lon_arr() - spoke_lon
-        s_rad_arr = spoke.get_rad_arr() - spoke_rad
+        curr_lon, curr_rad = self.get_centroid()
+        spoke_lon, spoke_rad = spoke.get_centroid()
 
-        curr_points = set(zip(curr_lon_arr, curr_rad_arr))
-        spoke_points = set(zip(s_lon_arr, s_rad_arr))
+        curr_lon_arr = self.get_lon_arr()
+        curr_rad_arr = self.get_rad_arr()
+        s_lon_arr = spoke.get_lon_arr()
+        s_rad_arr = spoke.get_rad_arr()
 
+        lon_step = self._shared_coordinate_step(
+            curr_lon_arr, s_lon_arr, curr_rad_arr, s_rad_arr
+        )
+        rad_step = self._shared_coordinate_step(curr_rad_arr, s_rad_arr)
+
+        curr_pixels = zip(
+            self._centered_pixels(curr_lon_arr, curr_lon, lon_step).tolist(),
+            self._centered_pixels(curr_rad_arr, curr_rad, rad_step).tolist(),
+        )
+        spoke_pixels = zip(
+            self._centered_pixels(s_lon_arr, spoke_lon, lon_step).tolist(),
+            self._centered_pixels(s_rad_arr, spoke_rad, rad_step).tolist(),
+        )
+
+        curr_points = set(curr_pixels)
+        spoke_points = set(spoke_pixels)
         intersection = len(curr_points & spoke_points)
         union = len(curr_points | spoke_points)
 
